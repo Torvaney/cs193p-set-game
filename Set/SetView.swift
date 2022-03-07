@@ -26,7 +26,7 @@ struct SetView: View {
 
 
 struct CardView: View {
-    let card: Set.Card
+    let card: Set.InPlayCard
     
     var body: some View {
         ZStack {
@@ -40,10 +40,11 @@ struct CardView: View {
     @ViewBuilder
     var face: some View {
         VStack {
-            ForEach(0..<n(card.number)) { _ in
-                viewShape(card.shape)
-                    .foregroundColor(color(card.color))
-                    .opacity(0.5)
+            ForEach(0..<number(card.card.number)) { _ in
+                // TODO: implement this properly
+                viewShape(card.card.shape)
+                    .foregroundColor(color(card.card.color))
+                    .opacity(shading(card.card.shading))
             }
         }.padding()
     }
@@ -73,12 +74,16 @@ struct CardView: View {
     }
     
     // Really, each of these should be a some View, right?
-    func n(_ triple: Set.Triple) -> Int {
+    func number(_ triple: Set.Triple) -> Int {
         switchTriple(triple, 1, 2, 3)
     }
     
     func color(_ triple: Set.Triple) -> Color {
         switchTriple(triple, .red, .green, .blue)
+    }
+    
+    func shading(_ triple: Set.Triple) -> Double {
+        switchTriple(triple, 0.1, 0.5, 1.0)
     }
     
 }

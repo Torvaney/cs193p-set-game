@@ -9,21 +9,35 @@ import Foundation
 
 
 struct Set {
-    var deck: [Card]
-    var inPlay: [Card]
-    var selected: [Card]  // NOTE: should this be a 3-tuple, instead?
-    var matched: [[Card]]
+    private(set) var deck: [Card]
+    private(set) var inPlay: [InPlayCard]
+    private(set) var matched: [[Card]]
     
     init() {
-        deck = [
-            Card(color: .first, number: .first, shape: .first, shading: .first),
-            Card(color: .second, number: .second, shape: .second, shading: .second),
-            Card(color: .third, number: .third, shape: .third, shading: .third),
-        ]
+        
+        // Initialise the deck at random
+        deck = []
+        
+        // Apparently Swift doesn't have a Cartesian Product function?!
+        for color in Triple.allCases {
+            for number in Triple.allCases {
+                for shape in Triple.allCases {
+                    for shading in Triple.allCases {
+                        // There absolutely *must* be a better way than this?!
+                        deck.append(Card(
+                            color: color,
+                            number: number,
+                            shape: shape,
+                            shading: shading
+                        ))
+                    }
+                }
+            }
+        }
+        
         deck.shuffle()
         
         inPlay = []
-        selected = []
         matched = []
         
         self.deal(12)
@@ -36,7 +50,7 @@ struct Set {
     private mutating func deal(_ n: Int) {
         let (dealt, remaining) = self.deck.cleave(at: n)
         
-        inPlay.append(contentsOf: dealt)
+        inPlay.append(contentsOf: dealt.map { InPlayCard(card: $0) })
         deck = remaining
     }
     
@@ -47,25 +61,49 @@ struct Set {
     
     // MARK: Matching cards
     
-    mutating func select(at: Int) -> SelectResult {
+    private var selected: [Card] {
+        inPlay
+            .filter { $0.isSelected }
+            .map { $0.card }
+    }
+    
+    mutating func select(card: Card) -> SelectResult {
         // NOTE: doesn't quite meet the requirements (see points 8-10)
-        
-        if (selected.count == 3) {
+        if selected.count == 3 {        // > 3 selected should be impossible
             if allMatching(selected) {
-                matched.append(self.selected)
-                selected = []
+                
+                // 8 (a): as per the rules of Set, replace those 3 matching Set cards with new ones from the deck
+                self.matched.append(selected)
+                inPlay.removeAll(where: { $0.isSelected })
                 deal()
+                
+                // 8 (c) and (d):
+                // if the touched card was not part of the matching Set, then select that card
+                // if the touched card was part of a matching Set, then select no card
+                if let ix = inPlay.firstIndex(of: InPlayCard(card: card)) {
+                    inPlay[ix].select()
+                }
+                
                 return .matched
+                
             } else {
-                inPlay.append(contentsOf: self.selected)
-                selected = []
+                // 9: When any card is touched and there are already 3 non-matching Set cards selected,
+                // deselect those 3 non-matching cards and select the touched-on card
+                deselectAll()
                 return .matchFailed
             }
         } else {
-            let card = inPlay.remove(at: at)
-            selected.append(card)
+            // fewer than 3 matching cards => select the card
+            // NOTE: some duplication here - should we pull this out into another function?
+            if let ix = inPlay.firstIndex(of: InPlayCard(card: card)) {
+                inPlay[ix].select()
+            }
             return .selectedCard
         }
+    }
+    
+    private mutating func deselectAll() {
+        inPlay = inPlay.map { $0.deselected() }
     }
 
     private func allMatching(_ cards: [Card]) -> Bool {
@@ -86,6 +124,29 @@ struct Set {
     
     // MARK: Cards
     
+    struct InPlayCard: Identifiable, Hashable {
+        let card: Card
+        var isSelected: Bool = false
+        
+        mutating func select() {
+            isSelected = true
+        }
+        
+        mutating func deselect() {
+            isSelected = false
+        }
+        
+        func selected() -> InPlayCard {
+            InPlayCard(card: card, isSelected: true)
+        }
+        
+        func deselected() -> InPlayCard {
+            InPlayCard(card: card, isSelected: false)
+        }
+        
+        var id: Card { card }
+    }
+    
     // NOTE: should Card go in the ViewModel?
     // i.e. should we be able to play Set! for any arbitrary type of card?
     // what kind of methods would that require?
@@ -99,8 +160,10 @@ struct Set {
         var id: Self { self }
     }
     
-    enum Triple: Identifiable {
-        case first, second, third
+    enum Triple: Identifiable, CaseIterable {
+        case first
+        case second
+        case third
         
         var id: Self { self }
     }
