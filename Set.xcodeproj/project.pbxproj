@@ -15,6 +15,7 @@
 		B5181AFD27D40CBD00479206 /* ArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5181AFC27D40CBD00479206 /* ArrayExtension.swift */; };
 		B5181AFF27D41E4800479206 /* SetGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5181AFE27D41E4800479206 /* SetGame.swift */; };
 		B5181B0127D41FF700479206 /* AspectVGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5181B0027D41FF700479206 /* AspectVGrid.swift */; };
+		B5A274AD27D6C3F700EB98CC /* Diamond.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A274AC27D6C3F700EB98CC /* Diamond.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		B5181AFC27D40CBD00479206 /* ArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtension.swift; sourceTree = "<group>"; };
 		B5181AFE27D41E4800479206 /* SetGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetGame.swift; sourceTree = "<group>"; };
 		B5181B0027D41FF700479206 /* AspectVGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AspectVGrid.swift; sourceTree = "<group>"; };
+		B5A274AC27D6C3F700EB98CC /* Diamond.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Diamond.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 				B5181AFC27D40CBD00479206 /* ArrayExtension.swift */,
 				B5181AFE27D41E4800479206 /* SetGame.swift */,
 				B5181B0027D41FF700479206 /* AspectVGrid.swift */,
+				B5A274AC27D6C3F700EB98CC /* Diamond.swift */,
 			);
 			path = Set;
 			sourceTree = "<group>";
@@ -152,6 +155,7 @@
 				B5181AED27D406DD00479206 /* SetView.swift in Sources */,
 				B5181AEB27D406DD00479206 /* SetApp.swift in Sources */,
 				B5181B0127D41FF700479206 /* AspectVGrid.swift in Sources */,
+				B5A274AD27D6C3F700EB98CC /* Diamond.swift in Sources */,
 				B5181AFF27D41E4800479206 /* SetGame.swift in Sources */,
 				B5181AFB27D4078100479206 /* Set.swift in Sources */,
 				B5181AFD27D40CBD00479206 /* ArrayExtension.swift in Sources */,
@@ -293,6 +297,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -322,6 +327,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

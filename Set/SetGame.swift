@@ -8,10 +8,14 @@
 import Foundation
 
 
-class SetGame {
-    var game: Set
+class SetGame: ObservableObject {
+    @Published var game: Set
     
     init() {
+        game = Set()
+    }
+    
+    func reset() {
         game = Set()
     }
 }

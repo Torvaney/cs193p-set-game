@@ -59,6 +59,12 @@ struct Set {
     }
     
     mutating func deal() {
+        if isMatchedSelection {
+            // TODO: this is duplicated both here and in select. Pull out into a function!
+            self.matched.append(selected)
+            inPlay.removeAll(where: { $0.isSelected })
+        }
+        
         deal(3)
     }
     

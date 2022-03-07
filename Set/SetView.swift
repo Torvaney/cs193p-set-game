@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SetView: View {
-    var game: SetGame
+    @ObservedObject var game: SetGame
     
     var body: some View {
         VStack {
@@ -17,8 +17,19 @@ struct SetView: View {
                 .padding()
             Spacer()
             AspectVGrid(items: game.game.inPlay, aspectRatio: 1) { item in
-                CardView(card: item)
+                // TODO: need to enforce a minimum size on each card to ensure readability is maintained
+                CardView(card: item, game: game)
             }
+            Divider()
+            HStack {
+                Button("3 more cards, please!") {
+                    game.game.deal()
+                }
+                Spacer()
+                Button("New game") {
+                    game.reset()
+                }
+            }.padding(.horizontal)
         }
     }
 }
@@ -27,14 +38,40 @@ struct SetView: View {
 
 struct CardView: View {
     let card: Set.InPlayCard
+    @ObservedObject var game: SetGame
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .strokeBorder()
+            background
             face
         }
-        .padding()
+        .padding(5)
+        .onTapGesture {
+            let _ = game.game.select(card: card)
+        }
+    }
+    
+    @ViewBuilder
+    var background: some View {
+        ZStack {
+            let baseShape = RoundedRectangle(cornerRadius: 5)
+            
+            if card.isSelected && game.game.isMatchedSelection {
+                baseShape
+                    .foregroundColor(.yellow)
+                baseShape
+                    .strokeBorder(lineWidth: 2)
+                    .foregroundColor(.red)
+            } else if card.isSelected {
+                baseShape
+                    .strokeBorder(lineWidth: 2)
+                    .foregroundColor(.blue)
+            } else {
+                baseShape
+                    .strokeBorder(lineWidth: 1)
+                    .foregroundColor(.gray)
+            }
+        }
     }
     
     @ViewBuilder
@@ -43,10 +80,12 @@ struct CardView: View {
             ForEach(0..<number(card.card.number)) { _ in
                 // TODO: implement this properly
                 viewShape(card.card.shape)
+                    .aspectRatio(3, contentMode: .fit)
                     .foregroundColor(color(card.card.color))
                     .opacity(shading(card.card.shading))
             }
-        }.padding()
+        }
+        .padding(15)
     }
     
     // TODO: make card appearance configurable in the ViewModel (via a theme?)
@@ -55,12 +94,11 @@ struct CardView: View {
     func viewShape(_ triple: Set.Triple) -> some View {
         switch triple {
         case .first:
-            Circle()
+            Diamond()
         case .second:
             Rectangle()
         case .third:
             RoundedRectangle(cornerRadius: 100)
-                .aspectRatio(3, contentMode: .fit)
         }
     }
     
