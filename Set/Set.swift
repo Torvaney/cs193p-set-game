@@ -13,6 +13,10 @@ struct Set {
     private(set) var inPlay: [InPlayCard]
     private(set) var matched: [[Card]]
     
+    var isMatchedSelection: Bool {
+        (selected.count == 3) && allMatching(selected)
+    }
+    
     init() {
         
         // Initialise the deck at random
@@ -67,7 +71,9 @@ struct Set {
             .map { $0.card }
     }
     
-    mutating func select(card: Card) -> SelectResult {
+    mutating func select(card: InPlayCard) -> SelectResult {
+        // Is selecting part of the game? Should this live in the ViewModel, instead?
+        
         // NOTE: doesn't quite meet the requirements (see points 8-10)
         if selected.count == 3 {        // > 3 selected should be impossible
             if allMatching(selected) {
@@ -80,7 +86,7 @@ struct Set {
                 // 8 (c) and (d):
                 // if the touched card was not part of the matching Set, then select that card
                 // if the touched card was part of a matching Set, then select no card
-                if let ix = inPlay.firstIndex(of: InPlayCard(card: card)) {
+                if let ix = inPlay.firstIndex(of: card) {
                     inPlay[ix].select()
                 }
                 
@@ -90,13 +96,16 @@ struct Set {
                 // 9: When any card is touched and there are already 3 non-matching Set cards selected,
                 // deselect those 3 non-matching cards and select the touched-on card
                 deselectAll()
+                // NOTE: some almost-duplications here. Could this be made more elegant?
+                if let ix = inPlay.firstIndex(of: card.deselected()) {
+                    inPlay[ix].select()
+                }
                 return .matchFailed
             }
         } else {
             // fewer than 3 matching cards => select the card
-            // NOTE: some duplication here - should we pull this out into another function?
-            if let ix = inPlay.firstIndex(of: InPlayCard(card: card)) {
-                inPlay[ix].select()
+            if let ix = inPlay.firstIndex(of: card) {
+                inPlay[ix].toggle()
             }
             return .selectedCard
         }
@@ -134,6 +143,10 @@ struct Set {
         
         mutating func deselect() {
             isSelected = false
+        }
+        
+        mutating func toggle() {
+            isSelected.toggle()
         }
         
         func selected() -> InPlayCard {
