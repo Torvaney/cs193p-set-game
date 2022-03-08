@@ -13,6 +13,10 @@ struct Set {
     private(set) var inPlay: [Card]
     private(set) var matched: [[Card]]
     
+    var noMoreCards: Bool {
+        deck.count == 0
+    }
+    
     init() {
         
         // Initialise the deck at random

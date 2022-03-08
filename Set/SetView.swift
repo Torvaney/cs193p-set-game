@@ -32,13 +32,10 @@ struct ControlPanel: View {
     
     var body: some View {
         HStack {
-            Button("3 more cards, please!") {
-                game.deal()
-            }
+            Button("3 more cards, please!") { game.deal() }
+                .disabled(game.noMoreCards)
             Spacer()
-            Button("New game") {
-                game.reset()
-            }
+            Button("New game") { game.reset() }
         }.padding(.horizontal)
     }
 }

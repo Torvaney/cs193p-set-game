@@ -15,6 +15,10 @@ class SetGame: ObservableObject {
     var cards: [Card] {
         game.inPlay.map { Card(data: $0, selection: classifySelection($0)) }
     }
+    
+    var noMoreCards: Bool {
+        game.noMoreCards
+    }
 
     
     // MARK: (Re)Starting the game
