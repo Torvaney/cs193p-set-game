@@ -16,14 +16,14 @@ struct SetView: View {
                 .font(.title)
                 .padding()
             Spacer()
-            AspectVGrid(items: game.game.inPlay, aspectRatio: 1) { item in
+            AspectVGrid(items: game.cards, aspectRatio: 1) { item in
                 // TODO: need to enforce a minimum size on each card to ensure readability is maintained
                 CardView(card: item, game: game)
             }
             Divider()
             HStack {
                 Button("3 more cards, please!") {
-                    game.game.deal()
+                    game.deal()
                 }
                 Spacer()
                 Button("New game") {
@@ -37,7 +37,7 @@ struct SetView: View {
 
 
 struct CardView: View {
-    let card: Set.InPlayCard
+    let card: SetGame.Card
     @ObservedObject var game: SetGame
     
     var body: some View {
@@ -47,7 +47,7 @@ struct CardView: View {
         }
         .padding(5)
         .onTapGesture {
-            let _ = game.game.select(card: card)
+            game.select(card: card)
         }
     }
     
@@ -56,7 +56,7 @@ struct CardView: View {
         ZStack {
             let baseShape = RoundedRectangle(cornerRadius: 5)
             
-            if card.isSelected && game.game.isMatchedSelection {
+            if card.isSelected && game.selectionIsMatch {
                 baseShape
                     .foregroundColor(.yellow)
                 baseShape
@@ -77,12 +77,12 @@ struct CardView: View {
     @ViewBuilder
     var face: some View {
         VStack {
-            ForEach(0..<number(card.card.number)) { _ in
+            ForEach(0..<number(card.data.number)) { _ in
                 // TODO: implement this properly
-                viewShape(card.card.shape)
+                viewShape(card.data.shape)
                     .aspectRatio(3, contentMode: .fit)
-                    .foregroundColor(color(card.card.color))
-                    .opacity(shading(card.card.shading))
+                    .foregroundColor(color(card.data.color))
+                    .opacity(shading(card.data.shading))
             }
         }
         .padding(15)

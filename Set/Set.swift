@@ -9,13 +9,9 @@ import Foundation
 
 
 struct Set {
-    private(set) var deck: [Card]
-    private(set) var inPlay: [InPlayCard]
+    private var deck: [Card]
+    private(set) var inPlay: [Card]
     private(set) var matched: [[Card]]
-    
-    var isMatchedSelection: Bool {
-        (selected.count == 3) && allMatching(selected)
-    }
     
     init() {
         
@@ -50,78 +46,66 @@ struct Set {
     // MARK: Dealing cards
     
     // External users can only ever deal 3 cards at a time
-    // However, internal use can deal an arbitrary number of cards
+    // However, internal use (i.e. starting the game)
+    // can deal an arbitrary number of cards
     private mutating func deal(_ n: Int) {
         let (dealt, remaining) = self.deck.cleave(at: n)
         
-        inPlay.append(contentsOf: dealt.map { InPlayCard(card: $0) })
+        inPlay.append(contentsOf: dealt)
         deck = remaining
     }
     
     mutating func deal() {
-        if isMatchedSelection {
-            // TODO: this is duplicated both here and in select. Pull out into a function!
-            self.matched.append(selected)
-            inPlay.removeAll(where: { $0.isSelected })
-        }
-        
         deal(3)
     }
     
     
     // MARK: Matching cards
     
-    private var selected: [Card] {
-        inPlay
-            .filter { $0.isSelected }
-            .map { $0.card }
-    }
-    
-    mutating func select(card: InPlayCard) -> SelectResult {
-        // Is selecting part of the game? Should this live in the ViewModel, instead?
+    mutating func match(cards: [Card]) -> MatchResult {
+        // The first 4 cases should never happen, but it's up to the
+        // ViewModel to avoid it
         
-        // NOTE: doesn't quite meet the requirements (see points 8-10)
-        if selected.count == 3 {        // > 3 selected should be impossible
-            if allMatching(selected) {
-                
-                // 8 (a): as per the rules of Set, replace those 3 matching Set cards with new ones from the deck
-                self.matched.append(selected)
-                inPlay.removeAll(where: { $0.isSelected })
-                deal()
-                
-                // 8 (c) and (d):
-                // if the touched card was not part of the matching Set, then select that card
-                // if the touched card was part of a matching Set, then select no card
-                if let ix = inPlay.firstIndex(of: card) {
-                    inPlay[ix].select()
-                }
-                
-                return .matched
-                
-            } else {
-                // 9: When any card is touched and there are already 3 non-matching Set cards selected,
-                // deselect those 3 non-matching cards and select the touched-on card
-                deselectAll()
-                // NOTE: some almost-duplications here. Could this be made more elegant?
-                if let ix = inPlay.firstIndex(of: card.deselected()) {
-                    inPlay[ix].select()
-                }
-                return .matchFailed
-            }
+        if cards.count < 3 {
+            return .notEnoughCards(cards.count)
+        }
+        
+        else if cards.count > 3 {
+            return .tooManyCards(cards.count)
+        }
+        
+        else if !cards.allDifferent({ $0 }) {
+            return .duplicatedCards
+        }
+        
+        // Should only match cards that are in play
+        else if !cards.allSatisfy({ inPlay.contains($0) }) {
+            return .invalidCards
+        }
+        
+        else if Set.allMatching(cards) {
+            // NOTE: this code on it's own has the potential to introduce a
+            // subtle bug
+            // If the cards supplied to the `match` argument aren't all
+            // in inPlay, then cards could be erroneously added to matched
+            // The preceding checks should take care of this
+            // Perhaps there's a nicer way that could avoid the need for these checks entirely?
+            inPlay.removeAll(where: { cards.contains($0) })
+            matched.append(cards)
+            deal()
+            return .success
         } else {
-            // fewer than 3 matching cards => select the card
-            if let ix = inPlay.firstIndex(of: card) {
-                inPlay[ix].toggle()
-            }
-            return .selectedCard
+            return .failure
         }
     }
     
-    private mutating func deselectAll() {
-        inPlay = inPlay.map { $0.deselected() }
+    enum MatchResult {
+        case success, failure, invalidCards, duplicatedCards
+        case notEnoughCards(_ n: Int)
+        case tooManyCards(_ n: Int)
     }
-
-    private func allMatching(_ cards: [Card]) -> Bool {
+    
+    static func allMatching(_ cards: [Card]) -> Bool {
         let characteristics: [(Card) -> Triple] = [
             { $0.color },
             { $0.number },
@@ -132,39 +116,7 @@ struct Set {
         return characteristics.allSatisfy { (cards.allEqual($0) || cards.allDifferent($0)) }
     }
     
-    enum SelectResult {
-        case matched, matchFailed, selectedCard
-    }
-    
-    
     // MARK: Cards
-    
-    struct InPlayCard: Identifiable, Hashable {
-        let card: Card
-        var isSelected: Bool = false
-        
-        mutating func select() {
-            isSelected = true
-        }
-        
-        mutating func deselect() {
-            isSelected = false
-        }
-        
-        mutating func toggle() {
-            isSelected.toggle()
-        }
-        
-        func selected() -> InPlayCard {
-            InPlayCard(card: card, isSelected: true)
-        }
-        
-        func deselected() -> InPlayCard {
-            InPlayCard(card: card, isSelected: false)
-        }
-        
-        var id: Card { card }
-    }
     
     // NOTE: should Card go in the ViewModel?
     // i.e. should we be able to play Set! for any arbitrary type of card?
