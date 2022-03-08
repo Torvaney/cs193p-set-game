@@ -32,7 +32,12 @@ class SetGame: ObservableObject {
     }
     
     func deal() {
-        game.deal()
+        switch game.match(cards: selected) {
+        case.success:
+            selected = []
+        default:
+            game.deal()
+        }
     }
     
     
