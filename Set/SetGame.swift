@@ -13,13 +13,9 @@ class SetGame: ObservableObject {
     private var selected: [Set.Card] = []
         
     var cards: [Card] {
-        game.inPlay.map { Card(data: $0, isSelected: selected.contains($0)) }
+        game.inPlay.map { Card(data: $0, selection: classifySelection($0)) }
     }
-    
-    var selectionIsMatch: Bool {
-        selected.count == 3 && Set.allMatching(selected)
-    }
-    
+
     
     // MARK: (Re)Starting the game
     
@@ -53,6 +49,8 @@ class SetGame: ObservableObject {
             }
             
         // The following cases should never happen
+        // This is because the only place where cards are added is in .notEnoughCards
+        // after `selected` has been checked for the existence of the card
         // Is there any way to enforce this in the type system?
         case .tooManyCards(_):
             selected = []
@@ -66,8 +64,24 @@ class SetGame: ObservableObject {
     struct Card: Identifiable, Hashable {
         // NOTE: could abstract things further with some idea of a "characteristic"?
         let data: Set.Card
-        var isSelected: Bool
+        var selection: Selection
         
         var id: Set.Card { data }
+    }
+    
+    enum Selection {
+        case notSelected, pending, noMatch, isMatch
+    }
+    
+    private func classifySelection(_ card: Set.Card) -> Selection {
+        if !selected.contains(card) {
+            return .notSelected
+        } else if selected.count != 3 {
+            return .pending
+        } else if Set.allMatching(selected) {
+            return .isMatch
+        } else {
+            return .noMatch
+        }
     }
 }

@@ -18,19 +18,28 @@ struct SetView: View {
             Spacer()
             AspectVGrid(items: game.cards, aspectRatio: 1) { item in
                 // TODO: need to enforce a minimum size on each card to ensure readability is maintained
-                CardView(card: item, game: game)
+                CardView(item) { game.select(card: item) }
             }
             Divider()
-            HStack {
-                Button("3 more cards, please!") {
-                    game.deal()
-                }
-                Spacer()
-                Button("New game") {
-                    game.reset()
-                }
-            }.padding(.horizontal)
+            ControlPanel(game: game)
         }
+    }
+}
+
+
+struct ControlPanel: View {
+    @ObservedObject var game: SetGame
+    
+    var body: some View {
+        HStack {
+            Button("3 more cards, please!") {
+                game.deal()
+            }
+            Spacer()
+            Button("New game") {
+                game.reset()
+            }
+        }.padding(.horizontal)
     }
 }
 
@@ -38,7 +47,12 @@ struct SetView: View {
 
 struct CardView: View {
     let card: SetGame.Card
-    @ObservedObject var game: SetGame
+    let onTap: () -> Void
+    
+    init(_ card: SetGame.Card, onTap: @escaping () -> Void) {
+        self.card = card
+        self.onTap = onTap
+    }
     
     var body: some View {
         ZStack {
@@ -47,7 +61,7 @@ struct CardView: View {
         }
         .padding(5)
         .onTapGesture {
-            game.select(card: card)
+            onTap()
         }
     }
     
@@ -55,24 +69,30 @@ struct CardView: View {
     var background: some View {
         ZStack {
             let baseShape = RoundedRectangle(cornerRadius: 5)
+            let border = baseShape.strokeBorder(lineWidth: 2)
             
-            if card.isSelected && game.selectionIsMatch {
-                baseShape
-                    .foregroundColor(.yellow)
-                baseShape
-                    .strokeBorder(lineWidth: 2)
-                    .foregroundColor(.red)
-            } else if card.isSelected {
-                baseShape
-                    .strokeBorder(lineWidth: 2)
-                    .foregroundColor(.blue)
-            } else {
-                baseShape
-                    .strokeBorder(lineWidth: 1)
-                    .foregroundColor(.gray)
-            }
+            baseShape
+                .foregroundColor(selectionColor ?? .white)
+                .opacity(0.1)
+            border
+                .foregroundColor(selectionColor ?? .gray)
         }
     }
+    
+    var selectionColor: Color? {
+        switch card.selection {
+        case .notSelected:
+            return nil
+        case .isMatch:
+            return .green
+        case .pending:
+            return .blue
+        case .noMatch:
+            return .red
+        }
+    }
+    
+    // TODO: below this all needs to be sorted out...
     
     @ViewBuilder
     var face: some View {
@@ -87,9 +107,7 @@ struct CardView: View {
         }
         .padding(15)
     }
-    
-    // TODO: make card appearance configurable in the ViewModel (via a theme?)
-    
+        
     @ViewBuilder
     func viewShape(_ triple: Set.Triple) -> some View {
         switch triple {
