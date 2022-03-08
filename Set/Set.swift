@@ -40,15 +40,16 @@ struct Set {
         inPlay = []
         matched = []
         
-        self.deal(12)
+        self.deal(n: 12)
     }
+    
     
     // MARK: Dealing cards
     
     // External users can only ever deal 3 cards at a time
     // However, internal use (i.e. starting the game)
     // can deal an arbitrary number of cards
-    private mutating func deal(_ n: Int) {
+    private mutating func deal(n: Int) {
         let (dealt, remaining) = self.deck.cleave(at: n)
         
         inPlay.append(contentsOf: dealt)
@@ -56,7 +57,7 @@ struct Set {
     }
     
     mutating func deal() {
-        deal(3)
+        deal(n: 3)
     }
     
     
@@ -116,13 +117,10 @@ struct Set {
         return characteristics.allSatisfy { (cards.allEqual($0) || cards.allDifferent($0)) }
     }
     
+    
     // MARK: Cards
     
-    // NOTE: should Card go in the ViewModel?
-    // i.e. should we be able to play Set! for any arbitrary type of card?
-    // what kind of methods would that require?
     struct Card: Identifiable, Hashable {
-        // NOTE: could abstract things further with some idea of a "characteristic"?
         let color: Triple
         let number: Triple
         let shape: Triple
