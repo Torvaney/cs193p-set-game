@@ -126,12 +126,4 @@ struct Set {
         
         var id: Self { self }
     }
-    
-    enum Triple: Identifiable, CaseIterable {
-        case first
-        case second
-        case third
-        
-        var id: Self { self }
-    }
 }
