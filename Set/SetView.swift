@@ -20,6 +20,7 @@ struct SetView: View {
                 // TODO: need to enforce a minimum size on each card to ensure readability is maintained
                 CardView(item) { game.select(card: item) }
             }
+            Text("Matched \(game.progress.0) sets (\(game.progress.1) remaining)")
             Divider()
             ControlPanel(game: game)
         }

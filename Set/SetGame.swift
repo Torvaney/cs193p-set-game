@@ -17,7 +17,11 @@ class SetGame: ObservableObject {
     }
     
     var noMoreCards: Bool {
-        game.noMoreCards
+        game.deck.count == 0
+    }
+    
+    var progress: (Int, Int) {
+        (game.matched.count, (game.inPlay.count + game.deck.count) / 3)
     }
 
     
@@ -78,6 +82,7 @@ class SetGame: ObservableObject {
         var id: Set.Card { data }
     }
     
+    // Selction indicates the current state of a given card
     enum Selection {
         case notSelected, pending, noMatch, isMatch
     }

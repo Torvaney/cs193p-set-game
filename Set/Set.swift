@@ -9,19 +9,14 @@ import Foundation
 
 
 struct Set {
-    private var deck: [Card]
+    private(set) var deck: [Card]
     private(set) var inPlay: [Card]
     private(set) var matched: [[Card]]
-    
-    var noMoreCards: Bool {
-        deck.count == 0
-    }
     
     init() {
         
         // Initialise the deck at random
         deck = []
-        
         // Apparently Swift doesn't have a Cartesian Product function?!
         for color in Triple.allCases {
             for number in Triple.allCases {
@@ -38,7 +33,6 @@ struct Set {
                 }
             }
         }
-        
         deck.shuffle()
         
         inPlay = []
