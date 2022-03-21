@@ -8,55 +8,30 @@
 import SwiftUI
 
 
-protocol CardTheme: View {
-    var card: Set.Card { get }
-    
-    var shape: S { get }
-    var number: N { get }
-    var color: C { get }
-    var shading: Sh { get }
-    
-    associatedtype S: View
-    associatedtype N: ViewModifier
-    associatedtype C: ViewModifier
-    associatedtype Sh: ViewModifier
-}
-
-extension CardTheme {
-    var body: some View {
-        shape
-            .modifier(number)
-            .modifier(color)
-            .modifier(shading)
-    }
-}
-
-
-struct DefaultTheme: CardTheme {
+struct DefaultTheme: View {
     var card: Set.Card
     
-    var shape: some View {
-        baseShape.aspectRatio(3, contentMode: .fit)
+    var body: some View {
+        baseShape
+            .aspectRatio(3, contentMode: .fit)
+            .modifier(CardNumber(level: card.number))
+            .modifier(CardColor(level: card.color))
     }
     
     @ViewBuilder
     var baseShape: some View {
         switch card.shape {
         case .first:
-            Diamond()
+            // Repetition is inelegant, but outside of returning `some Shape`, I'm not sure how best to
+            // avoid it. Is this *good enough* for this assignment?
+            // What would be the idiomatic way to solve this? An extension on Shape, perhaps?
+            applyShading(Diamond())
         case .second:
-            Rectangle()
+            applyShading(Rectangle())
         case .third:
-            RoundedRectangle(cornerRadius: 100)
+            applyShading(RoundedRectangle(cornerRadius: 100))
         }
     }
-    
-    var number: some ViewModifier { CardNumber(level: card.number) }
-    
-    var color: some ViewModifier { CardColor(level: card.color) }
-    
-    var shading: some ViewModifier { CardShading(level: card.shading) }
-    
     
     struct CardNumber: ViewModifier {
         var level: Triple
@@ -68,6 +43,21 @@ struct DefaultTheme: CardTheme {
                     content
                 }
             }
+        }
+    }
+    
+    @ViewBuilder
+    func applyShading<S>(_ content: S) -> some View where S: Shape {
+        switch card.shading {
+        case .first:
+            content.stroke(lineWidth: 2)
+        case .second:
+            ZStack {
+                content.opacity(0.3)
+                content.stroke(lineWidth: 2)
+            }
+        case .third:
+            content
         }
     }
     
