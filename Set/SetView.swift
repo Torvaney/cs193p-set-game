@@ -17,7 +17,7 @@ struct SetView: View {
                 .padding()
             Spacer()
             ScrollView {
-                AspectVGrid(items: game.cards, aspectRatio: 1, minWidth: 60) { item in
+                AspectVGrid(items: game.cards, aspectRatio: 1, minWidth: 65) { item in
                     CardView(item) { game.select(card: item) }
                 }
             }
@@ -66,7 +66,7 @@ struct CardView: View {
     
     @ViewBuilder
     var face: some View {
-        DefaultTheme(card: card.data).padding(15)
+        DefaultTheme(card: card.data).padding(10)
     }
     
     @ViewBuilder

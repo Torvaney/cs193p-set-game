@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// NOTE: TripleModifier is only used twice. Maybe not needed?
 
 protocol TripleModifier: ViewModifier {
     var level: Triple { get }
