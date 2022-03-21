@@ -16,9 +16,10 @@ struct SetView: View {
                 .font(.title)
                 .padding()
             Spacer()
-            AspectVGrid(items: game.cards, aspectRatio: 1) { item in
-                // TODO: need to enforce a minimum size on each card to ensure readability is maintained
-                CardView(item) { game.select(card: item) }
+            ScrollView {
+                AspectVGrid(items: game.cards, aspectRatio: 1, minWidth: 60) { item in
+                    CardView(item) { game.select(card: item) }
+                }
             }
             Text("Matched \(game.progress.0) sets (\(game.progress.1) remaining)")
             Divider()
@@ -57,7 +58,7 @@ struct CardView: View {
             background
             face
         }
-        .padding(5)
+        .padding(2)
         .onTapGesture {
             onTap()
         }
