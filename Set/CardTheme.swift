@@ -27,7 +27,7 @@ struct DefaultTheme: View {
             // What would be the idiomatic way to solve this? An extension on Shape, perhaps?
             applyShading(Diamond())
         case .second:
-            applyShading(Rectangle())
+            applyShading(Squiggle())
         case .third:
             applyShading(RoundedRectangle(cornerRadius: 100))
         }
